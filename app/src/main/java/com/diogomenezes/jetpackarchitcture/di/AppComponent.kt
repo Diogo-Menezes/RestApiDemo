@@ -2,7 +2,6 @@ package com.diogomenezes.jetpackarchitcture.di
 
 import android.app.Application
 import com.diogomenezes.jetpackarchitcture.BaseApplication
-import com.diogomenezes.jetpackarchitcture.di.auth.ActivityBuildersModule
 import com.diogomenezes.jetpackarchitcture.session.SessionManager
 import dagger.BindsInstance
 import dagger.Component

@@ -1,7 +1,7 @@
-package com.diogomenezes.jetpackarchitcture.di
+package com.diogomenezes.jetpackarchitcture.di.auth
 
+import android.content.SharedPreferences
 import com.diogomenezes.jetpackarchitcture.api.auth.OpenApiAuthService
-import com.diogomenezes.jetpackarchitcture.di.auth.AuthScope
 import com.diogomenezes.jetpackarchitcture.persistance.AccountPropertiesDao
 import com.diogomenezes.jetpackarchitcture.persistance.AuthTokenDao
 import com.diogomenezes.jetpackarchitcture.repository.auth.AuthRepository
@@ -28,13 +28,17 @@ class AuthModule {
         sessionManager: SessionManager,
         authTokenDao: AuthTokenDao,
         accountPropertiesDao: AccountPropertiesDao,
-        openApiAuthService: OpenApiAuthService
+        openApiAuthService: OpenApiAuthService,
+        sharedPreferences: SharedPreferences,
+        editor: SharedPreferences.Editor
     ): AuthRepository {
         return AuthRepository(
             authTokenDao,
             accountPropertiesDao,
             openApiAuthService,
-            sessionManager
+            sessionManager,
+            sharedPreferences,
+            editor
         )
     }
 
