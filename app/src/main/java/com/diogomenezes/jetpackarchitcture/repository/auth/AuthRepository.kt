@@ -88,6 +88,7 @@ constructor(
                 NetworkBoundResource<LoginResponse, Any, AuthViewState>(
                     sessionManager.isConnectedToTheInternet(),
                     true,
+                    true,
                     false
                 ) {
                 override suspend fun handleApiSuccessResponse(response: ApiSuccessResponse<LoginResponse>) {
@@ -170,6 +171,7 @@ constructor(
 
         return object : NetworkBoundResource<Void, Any, AuthViewState>(
             sessionManager.isConnectedToTheInternet(),
+            false,
             false,
             false
         ) {
@@ -292,6 +294,7 @@ constructor(
 
         return object : NetworkBoundResource<RegistrationResponse, Any, AuthViewState>(
             sessionManager.isConnectedToTheInternet(),
+            true,
             true,
             false
         ) {

@@ -34,13 +34,11 @@ constructor(
 
     fun getAccountProperties(authToken: AuthToken): LiveData<DataState<AccountViewState>> {
 
-        val isConnected = sessionManager.isConnectedToTheInternet()
-        Log.d("AccountRepository", "getAccountProperties (line 33): $isConnected")
-
         return object :
             NetworkBoundResource<AccountProperties, AccountProperties, AccountViewState>(
                 sessionManager.isConnectedToTheInternet(),
-                isConnected,
+                true,
+                false,
                 true
             ) {
             override suspend fun createCacheRequestAndReturn() {
@@ -111,6 +109,7 @@ constructor(
         return object :
             NetworkBoundResource<GenericResponse, Any, AccountViewState>(
                 sessionManager.isConnectedToTheInternet(),
+                true,
                 true,
                 false
             ) {
