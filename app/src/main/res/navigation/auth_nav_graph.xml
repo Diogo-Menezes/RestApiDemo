@@ -11,7 +11,7 @@
             android:id="@+id/launcherFragment"
             android:name="com.diogomenezes.jetpackarchitcture.ui.auth.LauncherFragment"
             android:label="fragment_launcher"
-            tools:layout="@layout/fragment_launcher" >
+            tools:layout="@layout/fragment_initial" >
 
         <action
                 android:id="@+id/action_launcherFragment_to_forgotPasswordFragment"

@@ -1,11 +1,12 @@
 package com.diogomenezes.jetpackarchitcture.ui.main.account
 
 import androidx.lifecycle.LiveData
-import com.diogomenezes.jetpackarchitcture.model.AccountProperties
+import com.diogomenezes.jetpackarchitcture.models.AccountProperties
 import com.diogomenezes.jetpackarchitcture.repository.main.AccountRepository
 import com.diogomenezes.jetpackarchitcture.session.SessionManager
-import com.diogomenezes.jetpackarchitcture.ui.BaseViewModel
+import com.diogomenezes.jetpackarchitcture.viewmodel.BaseViewModel
 import com.diogomenezes.jetpackarchitcture.ui.DataState
+import com.diogomenezes.jetpackarchitcture.ui.Loading
 import com.diogomenezes.jetpackarchitcture.ui.main.account.state.AccountStateEvent
 import com.diogomenezes.jetpackarchitcture.ui.main.account.state.AccountStateEvent.*
 import com.diogomenezes.jetpackarchitcture.ui.main.account.state.AccountViewState
@@ -47,10 +48,28 @@ constructor(
             }
 
             is ChangePasswordEvent -> {
-                return AbsentLiveData.create()
+                return sessionManager.cachedToken.value?.let { authToken ->
+                    accountRepository.updatePassword(
+                        authToken,
+                        stateEvent.currentPassword,
+                        stateEvent.newPassword,
+                        stateEvent.confirmPassword
+                    )
+                }
+                    ?: AbsentLiveData.create()
             }
             is None -> {
-                return AbsentLiveData.create()
+                return object : LiveData<DataState<AccountViewState>>() {
+                    override fun onActive() {
+                        super.onActive()
+                        value = DataState(
+                            null,
+                            Loading(false),
+                            null
+
+                        )
+                    }
+                }
             }
         }
     }
@@ -65,8 +84,23 @@ constructor(
 
     }
 
+    fun cancelActiveJobs() {
+        handlePendingData()
+        accountRepository.cancelActiveJobs()
+    }
+
+    fun handlePendingData() {
+        setStateEvent(None())
+    }
+
+
+
+    override fun onCleared() {
+        super.onCleared()
+        cancelActiveJobs()
+    }
+
     fun logout() {
         sessionManager.logout()
     }
-
 }

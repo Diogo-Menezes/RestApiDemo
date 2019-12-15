@@ -8,10 +8,10 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.RequestOptions
 import com.diogomenezes.jetpackarchitcture.R
-import com.diogomenezes.jetpackarchitcture.persistance.AccountPropertiesDao
-import com.diogomenezes.jetpackarchitcture.persistance.AppDatabase
-import com.diogomenezes.jetpackarchitcture.persistance.AppDatabase.Companion.DATABASE_NAME
-import com.diogomenezes.jetpackarchitcture.persistance.AuthTokenDao
+import com.diogomenezes.jetpackarchitcture.database.AccountPropertiesDao
+import com.diogomenezes.jetpackarchitcture.database.AppDatabase
+import com.diogomenezes.jetpackarchitcture.database.AppDatabase.Companion.DATABASE_NAME
+import com.diogomenezes.jetpackarchitcture.database.AuthTokenDao
 import com.diogomenezes.jetpackarchitcture.util.Constants.Companion.BASE_URL
 import com.diogomenezes.jetpackarchitcture.util.LiveDataCallAdapterFactory
 import com.diogomenezes.jetpackarchitcture.util.PreferenceKeys

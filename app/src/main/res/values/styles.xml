@@ -9,4 +9,13 @@
         <item name="md_color_button_text">@color/tealDark</item>
     </style>
 
+    <style name="login_letter_style">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">30dp</item>
+        <item name="android:textColor">#000</item>
+        <item name="android:textSize">25sp</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
+    </style>
+
 </resources>

@@ -6,8 +6,8 @@ import android.net.ConnectivityManager
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.diogomenezes.jetpackarchitcture.model.AuthToken
-import com.diogomenezes.jetpackarchitcture.persistance.AuthTokenDao
+import com.diogomenezes.jetpackarchitcture.models.AuthToken
+import com.diogomenezes.jetpackarchitcture.database.AuthTokenDao
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -37,9 +37,7 @@ class SessionManager
         GlobalScope.launch(IO) {
             var errorMassage: String? = null
             try {
-
-                cachedToken
-                cachedToken.value!!.account_pk?.let {
+                _cachedToken.value!!.account_pk?.let {
                     authTokenDao.nullifyToken(it)
                     Log.d("SessionManager", "logout (line 40): nullifyToken...")
                 }

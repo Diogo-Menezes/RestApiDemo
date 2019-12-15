@@ -3,7 +3,7 @@ package com.diogomenezes.jetpackarchitcture.ui.auth
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
-import com.diogomenezes.jetpackarchitcture.viewmodels.ViewModelProviderFactory
+import com.diogomenezes.jetpackarchitcture.viewmodel.ViewModelProviderFactory
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
@@ -21,6 +21,11 @@ abstract class BaseAuthFragment : DaggerFragment() {
         viewModel = activity?.run {
             ViewModelProvider(this, providerFactory).get(AuthViewModel::class.java)
         } ?: throw Exception("Invalid Activity")
+
+        cancelActiveJobs()
     }
 
+    private fun cancelActiveJobs() {
+        viewModel.cancelActiveJobs()
+    }
 }

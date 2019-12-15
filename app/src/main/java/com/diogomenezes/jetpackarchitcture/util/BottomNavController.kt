@@ -29,14 +29,14 @@ class BottomNavController(
     val navGraphProvider: NavGraphProvider
 ) {
     lateinit var activity: Activity
-    lateinit var fragmentManager: FragmentManager
+    lateinit var supportFragmentManager: FragmentManager
     lateinit var navItemChangeListener: OnNavigationItemChanged
     private val navigationBackStack = BackStack.of(appStartDestinationId)
 
     init {
         if (context is Activity) {
             activity = context
-            fragmentManager = (activity as FragmentActivity).supportFragmentManager
+            supportFragmentManager = (activity as FragmentActivity).supportFragmentManager
         }
     }
 
@@ -45,10 +45,10 @@ class BottomNavController(
         Log.d("BottomNavController", "onNavigationItemSelected (line 45): $itemId")
         // Replace fragment representing a navigation item
         val fragment =
-            fragmentManager.findFragmentByTag(itemId.toString()) ?: NavHostFragment.create(
+            supportFragmentManager.findFragmentByTag(itemId.toString()) ?: NavHostFragment.create(
                 navGraphProvider.getNavGraphId(itemId)
             )
-        fragmentManager.beginTransaction()
+        supportFragmentManager.beginTransaction()
             .setCustomAnimations(
                 R.anim.fade_in,
                 R.anim.fade_out,
@@ -72,7 +72,7 @@ class BottomNavController(
     }
 
     fun onBackPressed() {
-        val childFragmentManager = fragmentManager.findFragmentById(containerId)!!
+        val childFragmentManager = supportFragmentManager.findFragmentById(containerId)!!
             .childFragmentManager
 
         when {
@@ -81,9 +81,7 @@ class BottomNavController(
             // NavController because if the user change tabs super fast commit of the
             // supportFragmentManager may mess up with the NavController child fragment manager back
             // stack
-            childFragmentManager.popBackStackImmediate() -> {
-
-            }
+            childFragmentManager.popBackStackImmediate() -> { }
 // Fragment back stack is empty so try to go back on the navigation stack
             navigationBackStack.size > 1 -> {
 
@@ -170,7 +168,7 @@ fun BottomNavigationView.setUpNavigation(
 
     setOnNavigationItemReselectedListener {
         bottomNavController
-            .fragmentManager
+            .supportFragmentManager
             .findFragmentById(bottomNavController.containerId)!!
             .childFragmentManager
             .fragments[0]?.let { fragment ->

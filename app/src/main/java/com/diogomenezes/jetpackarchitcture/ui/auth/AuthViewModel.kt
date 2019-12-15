@@ -1,16 +1,15 @@
 package com.diogomenezes.jetpackarchitcture.ui.auth
 
 import androidx.lifecycle.LiveData
-import com.diogomenezes.jetpackarchitcture.model.AuthToken
+import com.diogomenezes.jetpackarchitcture.models.AuthToken
 import com.diogomenezes.jetpackarchitcture.repository.auth.AuthRepository
-import com.diogomenezes.jetpackarchitcture.ui.BaseViewModel
+import com.diogomenezes.jetpackarchitcture.viewmodel.BaseViewModel
 import com.diogomenezes.jetpackarchitcture.ui.DataState
 import com.diogomenezes.jetpackarchitcture.ui.auth.state.AuthStateEvent
 import com.diogomenezes.jetpackarchitcture.ui.auth.state.AuthStateEvent.*
 import com.diogomenezes.jetpackarchitcture.ui.auth.state.AuthViewState
 import com.diogomenezes.jetpackarchitcture.ui.auth.state.LoginFields
 import com.diogomenezes.jetpackarchitcture.ui.auth.state.RegistrationFields
-import com.diogomenezes.jetpackarchitcture.util.AbsentLiveData
 import javax.inject.Inject
 
 class AuthViewModel
@@ -66,6 +65,13 @@ constructor(
             is CheckPreviousAuthEvent -> {
                 return authRepository.checkPreviousAuthUser()
             }
+            is None ->
+                return object : LiveData<DataState<AuthViewState>>() {
+                    override fun onActive() {
+                        super.onActive()
+                        value = DataState.data(null, null)
+                    }
+                }
         }
     }
 
@@ -75,7 +81,12 @@ constructor(
 
 
     fun cancelActiveJobs() {
+        handlePendingData()
         authRepository.cancelActiveJobs()
+    }
+
+    fun handlePendingData() {
+        setStateEvent(None())
     }
 
     override fun onCleared() {

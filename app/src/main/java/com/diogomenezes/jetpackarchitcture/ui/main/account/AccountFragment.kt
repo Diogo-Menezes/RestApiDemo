@@ -6,7 +6,7 @@ import android.view.*
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.diogomenezes.jetpackarchitcture.R
-import com.diogomenezes.jetpackarchitcture.model.AccountProperties
+import com.diogomenezes.jetpackarchitcture.models.AccountProperties
 import com.diogomenezes.jetpackarchitcture.ui.main.account.state.AccountStateEvent
 import kotlinx.android.synthetic.main.fragment_account.*
 

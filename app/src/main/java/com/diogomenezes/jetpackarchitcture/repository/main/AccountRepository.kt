@@ -3,11 +3,12 @@ package com.diogomenezes.jetpackarchitcture.repository.main
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.switchMap
-import com.diogomenezes.jetpackarchitcture.api.GenericResponse
-import com.diogomenezes.jetpackarchitcture.api.main.OpenApiMainService
-import com.diogomenezes.jetpackarchitcture.model.AccountProperties
-import com.diogomenezes.jetpackarchitcture.model.AuthToken
-import com.diogomenezes.jetpackarchitcture.persistance.AccountPropertiesDao
+import com.diogomenezes.jetpackarchitcture.network.GenericResponse
+import com.diogomenezes.jetpackarchitcture.network.api.main.OpenApiMainService
+import com.diogomenezes.jetpackarchitcture.models.AccountProperties
+import com.diogomenezes.jetpackarchitcture.models.AuthToken
+import com.diogomenezes.jetpackarchitcture.database.AccountPropertiesDao
+import com.diogomenezes.jetpackarchitcture.repository.JobManager
 import com.diogomenezes.jetpackarchitcture.repository.NetworkBoundResource
 import com.diogomenezes.jetpackarchitcture.session.SessionManager
 import com.diogomenezes.jetpackarchitcture.ui.DataState
@@ -29,8 +30,7 @@ constructor(
     val openApiMainService: OpenApiMainService,
     val accountPropertiesDao: AccountPropertiesDao,
     val sessionManager: SessionManager
-) {
-    private var repositoryJob: Job? = null
+) : JobManager("AccountRepository") {
 
     fun getAccountProperties(authToken: AuthToken): LiveData<DataState<AccountViewState>> {
 
@@ -70,8 +70,8 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("getAccountProperties", job)
+
             }
 
             override fun loadFromCache(): LiveData<AccountViewState> {
@@ -114,7 +114,7 @@ constructor(
                 false
             ) {
             override suspend fun createCacheRequestAndReturn() {
-            //Not applicable
+                //Not applicable
             }
 
             override suspend fun handleApiSuccessResponse(response: ApiSuccessResponse<GenericResponse>) {
@@ -155,13 +155,60 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("saveAccountProperties", job)
             }
         }.asLiveData()
     }
 
-    fun cancelActiveJobs() {
-        Log.d("AccountRepository", "cancelActiveJobs (line 20): Cancelling...")
+
+    fun updatePassword(
+        authToken: AuthToken,
+        currentPassword: String,
+        newPassword: String,
+        confirmNewPassword: String
+    ): LiveData<DataState<AccountViewState>> {
+        return object : NetworkBoundResource<GenericResponse, Any, AccountViewState>(
+            sessionManager.isConnectedToTheInternet(),
+            true,
+            true,
+            false
+        ) {
+            override suspend fun createCacheRequestAndReturn() {
+                //Do nothing
+            }
+
+            override suspend fun handleApiSuccessResponse(response: ApiSuccessResponse<GenericResponse>) {
+                withContext(Main) {
+                    onCompleteJob(
+                        DataState.data(
+                            null,
+                            Response(response.body.response, ResponseType.Toast())
+                        )
+                    )
+                }
+            }
+
+            override fun createCall(): LiveData<GenericApiResponse<GenericResponse>> {
+                return openApiMainService.updatePassword(
+                    "Token ${authToken.token}",
+                    currentPassword,
+                    newPassword,
+                    confirmNewPassword
+                )
+            }
+
+            override fun loadFromCache(): LiveData<AccountViewState> {
+                return AbsentLiveData.create()
+            }
+
+            override suspend fun updateLocalDb(cacheObject: Any?) {
+                //Do nothing
+            }
+
+            override fun setJob(job: Job) {
+                addJob("updatePassword", job)
+            }
+
+        }.asLiveData()
     }
 }

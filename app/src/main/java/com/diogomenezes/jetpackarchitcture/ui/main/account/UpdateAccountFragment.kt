@@ -6,7 +6,7 @@ import android.util.Log
 import android.view.*
 import androidx.lifecycle.Observer
 import com.diogomenezes.jetpackarchitcture.R
-import com.diogomenezes.jetpackarchitcture.model.AccountProperties
+import com.diogomenezes.jetpackarchitcture.models.AccountProperties
 import com.diogomenezes.jetpackarchitcture.ui.main.account.state.AccountStateEvent
 import kotlinx.android.synthetic.main.fragment_update_account.*
 
@@ -53,6 +53,7 @@ class UpdateAccountFragment : BaseAccountFragment() {
                 input_username.text.toString()
             )
         )
+        stateChangeListener.hideSoftKeyboard()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -65,6 +66,7 @@ class UpdateAccountFragment : BaseAccountFragment() {
         return when (item.itemId) {
             R.id.save -> {
                 saveChanges()
+
                 true
             }
             else -> super.onOptionsItemSelected(item)

@@ -1,7 +1,7 @@
 package com.diogomenezes.jetpackarchitcture.di
 
 import androidx.lifecycle.ViewModelProvider
-import com.diogomenezes.jetpackarchitcture.viewmodels.ViewModelProviderFactory
+import com.diogomenezes.jetpackarchitcture.viewmodel.ViewModelProviderFactory
 
 import dagger.Binds
 import dagger.Module

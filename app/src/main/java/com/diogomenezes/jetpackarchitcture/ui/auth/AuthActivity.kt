@@ -13,8 +13,7 @@ import com.diogomenezes.jetpackarchitcture.BaseActivity
 import com.diogomenezes.jetpackarchitcture.R
 import com.diogomenezes.jetpackarchitcture.ui.auth.state.AuthStateEvent
 import com.diogomenezes.jetpackarchitcture.ui.main.MainActivity
-import com.diogomenezes.jetpackarchitcture.viewmodels.ViewModelProviderFactory
-import com.google.android.material.appbar.AppBarLayout
+import com.diogomenezes.jetpackarchitcture.viewmodel.ViewModelProviderFactory
 import kotlinx.android.synthetic.main.activity_auth.*
 import javax.inject.Inject
 
@@ -32,9 +31,13 @@ class AuthActivity : BaseActivity(),
         viewModel = ViewModelProvider(this, providerFactory).get(AuthViewModel::class.java)
         findNavController(R.id.auth_nav_graph_host_fragment).addOnDestinationChangedListener(this)
         subscribeObservers()
-        checkPreviousAuthUser()
+
     }
 
+    override fun onResume() {
+        super.onResume()
+        checkPreviousAuthUser()
+    }
 
     private fun subscribeObservers() {
 
@@ -60,9 +63,11 @@ class AuthActivity : BaseActivity(),
 
 
         sessionManager.cachedToken.observe(this, Observer {
-            Log.d("AuthActivity", "subscribeObservers (line 28): $it")
-            if (it != null || it?.account_pk != -1 || it?.token != null) {
-                navMainActivity()
+            it?.let { authToken ->
+                Log.d("AuthActivity", "subscribeObservers (line 28): $it")
+                if (authToken != null && authToken.account_pk != 1 && authToken.token != null) {
+                    navMainActivity()
+                }
             }
         })
 

@@ -10,12 +10,14 @@ import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import com.diogomenezes.jetpackarchitcture.BaseActivity
 import com.diogomenezes.jetpackarchitcture.R
-
 import com.diogomenezes.jetpackarchitcture.ui.auth.AuthActivity
+import com.diogomenezes.jetpackarchitcture.ui.main.account.BaseAccountFragment
 import com.diogomenezes.jetpackarchitcture.ui.main.account.ChangePasswordFragment
 import com.diogomenezes.jetpackarchitcture.ui.main.account.UpdateAccountFragment
+import com.diogomenezes.jetpackarchitcture.ui.main.blog.BaseBlogFragment
 import com.diogomenezes.jetpackarchitcture.ui.main.blog.UpdateBlogFragment
 import com.diogomenezes.jetpackarchitcture.ui.main.blog.ViewBlogFragment
+import com.diogomenezes.jetpackarchitcture.ui.main.create_blog.BaseCreateBlogFragment
 import com.diogomenezes.jetpackarchitcture.util.BottomNavController
 import com.diogomenezes.jetpackarchitcture.util.BottomNavController.*
 import com.diogomenezes.jetpackarchitcture.util.setUpNavigation
@@ -58,16 +60,14 @@ class MainActivity : BaseActivity(),
     private fun subscribeObservers() {
         sessionManager.cachedToken.observe(this, Observer {
             Log.d("MainActivity", "subscribeObservers (line 19): token: $it")
-
             if (it == null || it.account_pk == -1 || it.token == null) {
                 navAuthActivity()
-
             }
         })
     }
 
     private fun navAuthActivity() {
-        startActivity(Intent(this, AuthActivity::class.java))
+        startActivity(Intent(application, AuthActivity::class.java))
         finish()
     }
 
@@ -99,7 +99,27 @@ class MainActivity : BaseActivity(),
     }
 
     override fun onGraphChange() {
+        cancelActiveJobs()
         expandAppBar()
+    }
+
+    private fun cancelActiveJobs() {
+        val fragments = bottomNavController
+            .supportFragmentManager
+            .findFragmentById(bottomNavController.containerId)
+            ?.childFragmentManager
+            ?.fragments
+
+        if (fragments != null) {
+            for (fragment in fragments) {
+                when (fragment) {
+                    is BaseAccountFragment -> fragment.cancelActiveJobs()
+                    is BaseBlogFragment -> fragment.cancelActiveJobs()
+                    is BaseCreateBlogFragment -> fragment.cancelActiveJobs()
+
+                }
+            }
+        }
     }
 
     override fun onReselectNavItem(navController: NavController, fragment: Fragment) {

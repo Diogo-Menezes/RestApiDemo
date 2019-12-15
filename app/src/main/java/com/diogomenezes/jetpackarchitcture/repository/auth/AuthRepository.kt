@@ -3,13 +3,14 @@ package com.diogomenezes.jetpackarchitcture.repository.auth
 import android.content.SharedPreferences
 import android.util.Log
 import androidx.lifecycle.LiveData
-import com.diogomenezes.jetpackarchitcture.api.auth.OpenApiAuthService
-import com.diogomenezes.jetpackarchitcture.api.auth.network_responses.LoginResponse
-import com.diogomenezes.jetpackarchitcture.api.auth.network_responses.RegistrationResponse
-import com.diogomenezes.jetpackarchitcture.model.AccountProperties
-import com.diogomenezes.jetpackarchitcture.model.AuthToken
-import com.diogomenezes.jetpackarchitcture.persistance.AccountPropertiesDao
-import com.diogomenezes.jetpackarchitcture.persistance.AuthTokenDao
+import com.diogomenezes.jetpackarchitcture.network.api.auth.OpenApiAuthService
+import com.diogomenezes.jetpackarchitcture.network.api.auth.responses.LoginResponse
+import com.diogomenezes.jetpackarchitcture.network.api.auth.responses.RegistrationResponse
+import com.diogomenezes.jetpackarchitcture.models.AccountProperties
+import com.diogomenezes.jetpackarchitcture.models.AuthToken
+import com.diogomenezes.jetpackarchitcture.database.AccountPropertiesDao
+import com.diogomenezes.jetpackarchitcture.database.AuthTokenDao
+import com.diogomenezes.jetpackarchitcture.repository.JobManager
 import com.diogomenezes.jetpackarchitcture.repository.NetworkBoundResource
 import com.diogomenezes.jetpackarchitcture.session.SessionManager
 import com.diogomenezes.jetpackarchitcture.ui.DataState
@@ -33,7 +34,7 @@ constructor(
     val sessionManager: SessionManager,
     val sharedPreferences: SharedPreferences,
     val sharedPreferencesEditor: SharedPreferences.Editor
-) {
+) : JobManager("AuthRepository") {
 
     /*
     //
@@ -76,7 +77,6 @@ constructor(
 //                }
 //            }
     */
-    private var repositoryJob: Job? = null
 
     fun attemptLogin(email: String, password: String): LiveData<DataState<AuthViewState>> {
         Log.d("AuthRepository", "attemptLogin (line 82): called $email $password")
@@ -136,8 +136,7 @@ constructor(
                 }
 
                 override fun setJob(job: Job) {
-                    repositoryJob?.cancel()
-                    repositoryJob = job
+                    addJob("attemptLogin", job)
                 }
 
                 override suspend fun createCacheRequestAndReturn() {
@@ -219,8 +218,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("checkPreviousAuthUser", job)
             }
 
             override fun loadFromCache(): LiveData<AuthViewState> {
@@ -228,7 +226,7 @@ constructor(
             }
 
             override suspend fun updateLocalDb(cacheObject: Any?) {
-            //Not used
+                //Not used
             }
 
         }.asLiveData()
@@ -268,11 +266,6 @@ constructor(
                 )
             }
         }
-    }
-
-    fun cancelActiveJobs() {
-        Log.d("AuthRepository", "cancelActiveJobs (line 133): called")
-        repositoryJob?.cancel()
     }
 
     fun attemptRegistration(
@@ -345,8 +338,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("attemptRegistration", job)
             }
 
             override suspend fun createCacheRequestAndReturn() {

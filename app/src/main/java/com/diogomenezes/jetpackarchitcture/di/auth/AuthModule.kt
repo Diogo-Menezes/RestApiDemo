@@ -1,9 +1,9 @@
 package com.diogomenezes.jetpackarchitcture.di.auth
 
 import android.content.SharedPreferences
-import com.diogomenezes.jetpackarchitcture.api.auth.OpenApiAuthService
-import com.diogomenezes.jetpackarchitcture.persistance.AccountPropertiesDao
-import com.diogomenezes.jetpackarchitcture.persistance.AuthTokenDao
+import com.diogomenezes.jetpackarchitcture.network.api.auth.OpenApiAuthService
+import com.diogomenezes.jetpackarchitcture.database.AccountPropertiesDao
+import com.diogomenezes.jetpackarchitcture.database.AuthTokenDao
 import com.diogomenezes.jetpackarchitcture.repository.auth.AuthRepository
 import com.diogomenezes.jetpackarchitcture.session.SessionManager
 import dagger.Module

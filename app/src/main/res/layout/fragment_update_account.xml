@@ -33,7 +33,7 @@
                 android:textColor="#000"
                 android:inputType="textEmailAddress"
                 android:id="@+id/input_email"
-
+                android:imeOptions="flagNoExtractUi"
                 />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -51,15 +51,16 @@
             app:helperText="@string/field_username"
             android:layout_marginTop="50dp"
             >
+
             <EditText
+                android:id="@+id/input_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/input_username"
-                android:textColor="#000"
-                android:inputType="text"
                 android:layout_marginTop="30dp"
+                android:imeOptions="flagNoExtractUi"
+                android:inputType="text"
 
-                />
+                android:textColor="#000" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

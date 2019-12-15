@@ -1,6 +1,6 @@
 package com.diogomenezes.jetpackarchitcture.ui.auth.state
 
-import com.diogomenezes.jetpackarchitcture.model.AuthToken
+import com.diogomenezes.jetpackarchitcture.models.AuthToken
 
 data class AuthViewState(
     var registrationFields: RegistrationFields? = RegistrationFields(),
