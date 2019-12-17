@@ -3,6 +3,7 @@ package com.diogomenezes.jetpackarchitcture.ui.main.blog
 import android.app.SearchManager
 import android.content.Context.SEARCH_SERVICE
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.EditorInfo
@@ -21,20 +22,20 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.customview.getCustomView
 import com.diogomenezes.jetpackarchitcture.R
-import com.diogomenezes.jetpackarchitcture.models.BlogPost
 import com.diogomenezes.jetpackarchitcture.database.BlogQueryUtils.Companion.BLOG_FILTER_DATE_UPDATED
 import com.diogomenezes.jetpackarchitcture.database.BlogQueryUtils.Companion.BLOG_FILTER_USERNAME
 import com.diogomenezes.jetpackarchitcture.database.BlogQueryUtils.Companion.BLOG_ORDER_ASC
 import com.diogomenezes.jetpackarchitcture.database.BlogQueryUtils.Companion.BLOG_ORDER_DESC
+import com.diogomenezes.jetpackarchitcture.models.BlogPost
 import com.diogomenezes.jetpackarchitcture.ui.DataState
 import com.diogomenezes.jetpackarchitcture.ui.main.blog.state.BlogViewState
 import com.diogomenezes.jetpackarchitcture.ui.main.blog.viewmodel.*
 import com.diogomenezes.jetpackarchitcture.util.ErrorHandling
 import com.diogomenezes.jetpackarchitcture.util.TopSpacingItemDecoration
-import kotlinx.android.synthetic.main.fragment_blog.*
+import kotlinx.android.synthetic.main.fragment_blog_list.*
 
 
-class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
+class BlogListFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
     SwipeRefreshLayout.OnRefreshListener {
 
     private lateinit var recyclerAdapter: BlogListAdapter
@@ -44,24 +45,19 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_blog, container, false)
+        return inflater.inflate(R.layout.fragment_blog_list, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
-
         swipe_refresh.setOnRefreshListener(this)
-
+        swipe_refresh.setDistanceToTriggerSync(50)
         (activity as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
 
         initRecView()
         subscribeObservers()
-
         if (savedInstanceState == null) viewModel.loadFirstPage()
-
-
     }
 
     private fun subscribeObservers() {
@@ -69,7 +65,6 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
             if (it != null) {
                 handlePagination(it)
                 stateChangeListener.OnDataStateChange(it)
-
             }
         })
 
@@ -83,19 +78,19 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
                         isQueryExhausted = viewState.blogFields.isQueryExhausted
                     )
                 }
-
             }
-
         })
     }
 
     private fun initSearchView(menu: Menu) {
+        var searchQuery: String
+
         activity?.apply {
             val searchManager: SearchManager = getSystemService(SEARCH_SERVICE) as SearchManager
             searchView = menu.findItem(R.id.action_search).actionView as SearchView
             searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
             searchView.maxWidth = Integer.MAX_VALUE
-            searchView.setIconifiedByDefault(true)
+//            searchView.setIconifiedByDefault(true)
             searchView.isSubmitButtonEnabled = true
         }
 
@@ -106,7 +101,7 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
             if (actionId == EditorInfo.IME_ACTION_UNSPECIFIED
                 || actionId == EditorInfo.IME_ACTION_SEARCH
             ) {
-                val searchQuery = v.text.toString()
+                searchQuery = v.text.toString()
 
                 viewModel.setQuery(searchQuery).let {
                     onBlogSearchOrFilter()
@@ -118,12 +113,11 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
         // SEARCH BUTTON CLICKED (in toolbar)
         val searchButton = searchView.findViewById(R.id.search_go_btn) as View
         searchButton.setOnClickListener {
-            val searchQuery = searchPlate.text.toString()
+            searchQuery = searchPlate.text.toString()
 
             viewModel.setQuery(searchQuery).let {
                 onBlogSearchOrFilter()
             }
-
         }
     }
 
@@ -134,7 +128,7 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
     }
 
     private fun resetUI() {
-        blog_post_recyclerview.smoothScrollToPosition(0)
+        blog_list_recycler.smoothScrollToPosition(0)
         stateChangeListener.hideSoftKeyboard()
         focusable_view.requestFocus()
     }
@@ -174,8 +168,8 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
 
 
     private fun initRecView() {
-        blog_post_recyclerview.apply {
-            layoutManager = LinearLayoutManager(this@BlogFragment.context)
+        blog_list_recycler.apply {
+            layoutManager = LinearLayoutManager(this@BlogListFragment.context)
             val topSpacingItemDecoration = TopSpacingItemDecoration(30)
             removeItemDecoration(topSpacingItemDecoration)
             addItemDecoration(topSpacingItemDecoration)
@@ -184,7 +178,7 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
             recyclerAdapter =
                 BlogListAdapter(
                     requestManager = requestManager,
-                    interaction = this@BlogFragment
+                    interaction = this@BlogListFragment
                 )
 
 
@@ -215,7 +209,6 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
         if (item.itemId == R.id.action_filter_settings) {
             showFilterOptions()
             return true
@@ -227,7 +220,7 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
     override fun onDestroyView() {
         super.onDestroyView()
         //clear references (can leak memory)
-        blog_post_recyclerview.adapter = null
+        blog_list_recycler.adapter = null
     }
 
     override fun onItemSelected(position: Int, item: BlogPost) {
@@ -250,8 +243,6 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
             val view = dialog.getCustomView()
 
             val filter = viewModel.getFilter()
-
-
             if (filter.equals(BLOG_FILTER_DATE_UPDATED)) {
                 view.findViewById<RadioGroup>(R.id.filter_group).check(R.id.filter_date)
             } else {
@@ -264,6 +255,7 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
             } else {
                 view.findViewById<RadioGroup>(R.id.order_group).check(R.id.order_desc)
             }
+
             val initialFilter = dialog.getCustomView().findViewById<RadioButton>(
                 dialog.getCustomView().findViewById<RadioGroup>(R.id.filter_group).checkedRadioButtonId
             )
@@ -277,24 +269,19 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
                 val selectedOrder = dialog.getCustomView().findViewById<RadioButton>(
                     dialog.getCustomView().findViewById<RadioGroup>(R.id.order_group).checkedRadioButtonId
                 )
-                if (initalOrder == selectedOrder && initialFilter == selectedFilter) {
-                    dialog.dismiss()
-                    return@setOnClickListener
-                }
+                val setFilter =
+                    if (selectedFilter.text.toString().equals(getString(R.string.filter_author))) BLOG_FILTER_USERNAME else BLOG_FILTER_DATE_UPDATED
+                val setOrder =
+                    if (selectedOrder.text.toString().equals(getString(R.string.filter_desc))) BLOG_ORDER_DESC else BLOG_ORDER_ASC
 
-                var filter = BLOG_FILTER_DATE_UPDATED
-                if (selectedFilter.text.toString().equals(getString(R.string.filter_author))) {
-                    filter = BLOG_FILTER_USERNAME
-                }
-
-                var order = BLOG_ORDER_ASC
-                if (selectedOrder.text.toString().equals(getString(R.string.filter_desc))) order =
-                    BLOG_ORDER_DESC
-
-                viewModel.saveFilterOptions(filter, order).let {
-                    viewModel.setBlogOrder(order)
-                    viewModel.setBlogFilter(filter)
-                    onBlogSearchOrFilter()
+                viewModel.saveFilterOptions(setFilter, setOrder).let {
+                    viewModel.setBlogOrder(setOrder)
+                    viewModel.setBlogFilter(setFilter)
+                    if (initalOrder == selectedOrder && initialFilter == selectedFilter) {
+                        dialog.dismiss()
+                    } else {
+                        onBlogSearchOrFilter()
+                    }
                 }
                 dialog.dismiss()
             }
@@ -302,8 +289,14 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction,
             view.findViewById<TextView>(R.id.negative_button).setOnClickListener {
                 dialog.dismiss()
             }
-
             dialog.show()
         }
     }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+    }
+
+
 }

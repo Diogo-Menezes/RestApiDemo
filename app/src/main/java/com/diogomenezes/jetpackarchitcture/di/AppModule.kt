@@ -77,7 +77,7 @@ class AppModule {
     @Provides
     fun provideRequestOptions(): RequestOptions {
         return RequestOptions
-            .placeholderOf(R.drawable.default_image)
+            .placeholderOf(R.drawable.loading_animation)
             .error(R.drawable.default_image)
     }
 

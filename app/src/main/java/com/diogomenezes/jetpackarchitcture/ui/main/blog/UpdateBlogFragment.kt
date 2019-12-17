@@ -34,7 +34,6 @@ class UpdateBlogFragment : BaseBlogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_update_blog, container, false)
     }
 
@@ -77,21 +76,21 @@ class UpdateBlogFragment : BaseBlogFragment() {
         updatedBlogBody: String?,
         updatedImageUri: Uri?
     ) {
-        blog_title.setText(updatedBlogTitle)
-        blog_body.setText(updatedBlogBody)
+        create_blog_title.setText(updatedBlogTitle)
+        create_blog_body.setText(updatedBlogBody)
 
         requestManager
             .load(updatedImageUri)
-            .into(blog_image)
+            .into(create_blog_image)
     }
 
     private fun setBlogFields(blogPost: BlogPost = viewModel.getBlogPost()) {
-        blog_title.setText(blogPost.title)
-        blog_body.setText(blogPost.title)
+        create_blog_title.setText(blogPost.title)
+        create_blog_body.setText(blogPost.title)
 
         requestManager
             .load(blogPost.image)
-            .into(blog_image)
+            .into(create_blog_image)
     }
 
     private fun saveChanges() {
@@ -130,8 +129,8 @@ class UpdateBlogFragment : BaseBlogFragment() {
         multiPartBody?.let {
             viewModel.setStateEvent(
                 BlogStateEvent.UpdatedBlogPostEvent(
-                    blog_title.text.toString(),
-                    blog_body.text.toString(),
+                    create_blog_title.text.toString(),
+                    create_blog_body.text.toString(),
                     it
                 )
             )
@@ -161,8 +160,8 @@ class UpdateBlogFragment : BaseBlogFragment() {
         super.onPause()
         viewModel.setUpdatedBlogFields(
             image = null,
-            body = blog_body.text.toString(),
-            title = blog_title.text.toString()
+            body = create_blog_body.text.toString(),
+            title = create_blog_title.text.toString()
         )
     }
 

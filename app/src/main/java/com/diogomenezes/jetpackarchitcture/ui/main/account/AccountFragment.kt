@@ -8,22 +8,37 @@ import androidx.navigation.fragment.findNavController
 import com.diogomenezes.jetpackarchitcture.R
 import com.diogomenezes.jetpackarchitcture.models.AccountProperties
 import com.diogomenezes.jetpackarchitcture.ui.main.account.state.AccountStateEvent
+import com.diogomenezes.jetpackarchitcture.util.Constants
 import kotlinx.android.synthetic.main.fragment_account.*
 
 class AccountFragment : BaseAccountFragment() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        savedInstanceState?.let { bundle ->
+            bundle[Constants.USER_ACCOUNT]?.let { account ->
+                viewModel.setAccountPropertiesData(account as AccountProperties)
+            }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putParcelable(Constants.USER_ACCOUNT, viewModel.viewState.value?.accountProperties)
+    }
 
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_account, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
+        Log.i("AccountFragment", "onViewCreated: called")
         logout_button.setOnClickListener {
             Log.d("AccountFragment", "onViewCreated (line 29): clicked")
             viewModel.logout()
@@ -79,7 +94,6 @@ class AccountFragment : BaseAccountFragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-
         inflater.inflate(R.menu.edit_view_menu, menu)
     }
 
@@ -89,7 +103,6 @@ class AccountFragment : BaseAccountFragment() {
                 findNavController().navigate(R.id.action_accountFragment_to_updateAccountFragment)
                 return true
             }
-
         }
         return super.onOptionsItemSelected(item)
     }

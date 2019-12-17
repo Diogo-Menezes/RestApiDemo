@@ -14,6 +14,7 @@ import com.diogomenezes.jetpackarchitcture.ui.UiMessage
 import com.diogomenezes.jetpackarchitcture.ui.main.blog.state.BlogStateEvent
 import com.diogomenezes.jetpackarchitcture.ui.main.blog.state.BlogStateEvent.CheckAuthorBlogPost
 import com.diogomenezes.jetpackarchitcture.ui.main.blog.viewmodel.*
+import com.diogomenezes.jetpackarchitcture.util.Constants.Companion.BLOG_POST
 import com.diogomenezes.jetpackarchitcture.util.DateUtil
 import com.diogomenezes.jetpackarchitcture.util.SuccessHandling.Companion.SUCCESS_BLOG_DELETED
 import kotlinx.android.synthetic.main.fragment_view_blog.*
@@ -27,12 +28,15 @@ class ViewBlogFragment : BaseBlogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_view_blog, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (savedInstanceState != null) {
+
+        }
         setHasOptionsMenu(true)
         subscribeObservers()
         checkIsAuthorOfBlogPost()
@@ -104,17 +108,17 @@ class ViewBlogFragment : BaseBlogFragment() {
     }
 
     private fun setBlogProperties(blogPost: BlogPost) {
-        blog_title.text = blogPost.title
+        create_blog_title.text = blogPost.title
         blog_author.text = blogPost.username
 
         var body = blogPost.body
-        if (!body.isNullOrEmpty()) blog_body.text = blogPost.body
+        if (!body.isNullOrEmpty()) create_blog_body.text = blogPost.body
 
         blog_update_date.text =
             "Last update: ${DateUtil.convertLongToStringDate(blogPost.date_updated)}"
 
         requestManager.load(blogPost.image)
-            .into(blog_image)
+            .into(create_blog_image)
 
 
     }
@@ -147,10 +151,26 @@ class ViewBlogFragment : BaseBlogFragment() {
                 viewModel.getBlogPost().body,
                 viewModel.getBlogPost().image.toUri()
             )
-            findNavController ().navigate(R.id.action_viewBlogFragment_to_updateBlogFragment)
+            findNavController().navigate(R.id.action_viewBlogFragment_to_updateBlogFragment)
         } catch (e: Exception) {
             Log.e("ViewBlogFragment", "navUpdateBlogFragment :Exception: ${e.message}")
         }
 
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        savedInstanceState?.let {
+            it["blog_post"]?.let {
+                viewModel.setBlogPost(it as BlogPost)
+            }
+        }
+
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        outState.putParcelable(BLOG_POST, viewModel.getBlogPost())
     }
 }

@@ -11,8 +11,10 @@ import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import com.diogomenezes.jetpackarchitcture.BaseActivity
 import com.diogomenezes.jetpackarchitcture.R
+import com.diogomenezes.jetpackarchitcture.ui.DataState
 import com.diogomenezes.jetpackarchitcture.ui.auth.state.AuthStateEvent
 import com.diogomenezes.jetpackarchitcture.ui.main.MainActivity
+import com.diogomenezes.jetpackarchitcture.util.Constants.Companion.LOGOUT
 import com.diogomenezes.jetpackarchitcture.viewmodel.ViewModelProviderFactory
 import kotlinx.android.synthetic.main.activity_auth.*
 import javax.inject.Inject
@@ -30,13 +32,17 @@ class AuthActivity : BaseActivity(),
 
         viewModel = ViewModelProvider(this, providerFactory).get(AuthViewModel::class.java)
         findNavController(R.id.auth_nav_graph_host_fragment).addOnDestinationChangedListener(this)
+
         subscribeObservers()
 
     }
 
     override fun onResume() {
         super.onResume()
-        checkPreviousAuthUser()
+        Log.i("AuthActivity", "onResume: called")
+        if (!intent.hasExtra(LOGOUT)) {
+            checkPreviousAuthUser()
+        }
     }
 
     private fun subscribeObservers() {
@@ -56,8 +62,10 @@ class AuthActivity : BaseActivity(),
         })
 
         viewModel.viewState.observe(this, Observer {
-            it.authToken?.let {
-                sessionManager.login(it)
+            it.authToken?.let { authToken ->
+                sessionManager.login(authToken)
+                authToken.token?.let {
+                    OnDataStateChange(DataState.loading(true, null)) }
             }
         })
 
@@ -78,6 +86,7 @@ class AuthActivity : BaseActivity(),
     }
 
     private fun navMainActivity() {
+        Log.i("AuthActivity", "navMainActivity: called")
         startActivity(Intent(this, MainActivity::class.java))
         finish()
     }

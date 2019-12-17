@@ -3,7 +3,7 @@ package com.diogomenezes.jetpackarchitcture.di.main
 import com.diogomenezes.jetpackarchitcture.ui.main.account.AccountFragment
 import com.diogomenezes.jetpackarchitcture.ui.main.account.ChangePasswordFragment
 import com.diogomenezes.jetpackarchitcture.ui.main.account.UpdateAccountFragment
-import com.diogomenezes.jetpackarchitcture.ui.main.blog.BlogFragment
+import com.diogomenezes.jetpackarchitcture.ui.main.blog.BlogListFragment
 import com.diogomenezes.jetpackarchitcture.ui.main.blog.UpdateBlogFragment
 import com.diogomenezes.jetpackarchitcture.ui.main.blog.ViewBlogFragment
 import com.diogomenezes.jetpackarchitcture.ui.main.create_blog.CreateBlogFragment
@@ -14,7 +14,7 @@ import dagger.android.ContributesAndroidInjector
 abstract class MainFragmentBuildersModule {
 
     @ContributesAndroidInjector()
-    abstract fun contributeBlogFragment(): BlogFragment
+    abstract fun contributeBlogFragment(): BlogListFragment
 
     @ContributesAndroidInjector()
     abstract fun contributeAccountFragment(): AccountFragment

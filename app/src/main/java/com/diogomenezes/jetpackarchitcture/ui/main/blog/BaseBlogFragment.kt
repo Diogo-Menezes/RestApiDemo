@@ -11,9 +11,12 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.bumptech.glide.RequestManager
 import com.diogomenezes.jetpackarchitcture.R
+import com.diogomenezes.jetpackarchitcture.models.BlogPost
 import com.diogomenezes.jetpackarchitcture.ui.DataStateChangeListener
 import com.diogomenezes.jetpackarchitcture.ui.UICommunicationListener
 import com.diogomenezes.jetpackarchitcture.ui.main.blog.viewmodel.BlogViewModel
+import com.diogomenezes.jetpackarchitcture.ui.main.blog.viewmodel.setBlogListData
+import com.diogomenezes.jetpackarchitcture.util.Constants
 import com.diogomenezes.jetpackarchitcture.viewmodel.ViewModelProviderFactory
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
@@ -32,6 +35,28 @@ abstract class BaseBlogFragment : DaggerFragment() {
 
     lateinit var viewModel: BlogViewModel
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel = activity?.run {
+            ViewModelProvider(this, viewModelProviderFactory).get(BlogViewModel::class.java)
+        } ?: throw Exception("Invalid activity")
+
+        savedInstanceState?.let { bundle ->
+            bundle["blog_list"]?.let { blogList ->
+                viewModel.setBlogListData(blogList as ArrayList<BlogPost>)
+            }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        //In production should save the query
+        outState.putParcelableArrayList(
+            Constants.BLOG_LIST,
+            (viewModel.viewState.value?.blogFields?.blogList as ArrayList<BlogPost>)
+        )
+    }
+
     fun setupActionBarWithNavController(fragmentId: Int, activity: AppCompatActivity) {
         val appBarConfiguration = AppBarConfiguration(setOf(fragmentId))
         NavigationUI.setupActionBarWithNavController(
@@ -44,12 +69,6 @@ abstract class BaseBlogFragment : DaggerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupActionBarWithNavController(R.id.blogFragment, activity as AppCompatActivity)
-
-        viewModel = activity?.run {
-            ViewModelProvider(this, viewModelProviderFactory).get(BlogViewModel::class.java)
-        } ?: throw Exception("Invalid activity")
-
-
         cancelActiveJobs()
     }
 
@@ -58,7 +77,7 @@ abstract class BaseBlogFragment : DaggerFragment() {
         try {
             stateChangeListener = context as DataStateChangeListener
         } catch (e: ClassCastException) {
-Log.e("BaseBlogFragment", "onAttach : must implement  stateChangeListener")
+            Log.e("BaseBlogFragment", "onAttach : must implement  stateChangeListener")
         }
 
         try {

@@ -36,48 +36,6 @@ constructor(
     val sharedPreferencesEditor: SharedPreferences.Editor
 ) : JobManager("AuthRepository") {
 
-    /*
-    //
-//        return openApiAuthService.login(email, password)
-//            .switchMap { response ->
-//                object : LiveData<DataState<AuthViewState>>() {
-//                    override fun onActive() {
-//                        super.onActive()
-//                        when (response) {
-//
-//                            is ApiSuccessResponse -> {
-//                                value = DataState.data(
-//                                    AuthViewState(
-//                                        authToken = AuthToken(
-//                                            response.body.pk,
-//                                            response.body.token
-//                                        )
-//                                    ), response = null
-//                                )
-//                            }
-//                            is ApiErrorResponse -> {
-//                                value = DataState.error(
-//                                    response = Response(
-//                                        message = response.errorMessage,
-//                                        responseType = ResponseType.Dialog()
-//                                    )
-//                                )
-//                            }
-//                            is ApiEmptyResponse -> {
-//                                value = DataState.error(
-//                                    response = Response(
-//                                        message = ERROR_UNKNOWN,
-//                                        responseType = ResponseType.Dialog()
-//                                    )
-//                                )
-//                            }
-//
-//                        }
-//                    }
-//                }
-//            }
-    */
-
     fun attemptLogin(email: String, password: String): LiveData<DataState<AuthViewState>> {
         Log.d("AuthRepository", "attemptLogin (line 82): called $email $password")
         val loginFieldsErrors = LoginFields(email, password).isValidForLogin()

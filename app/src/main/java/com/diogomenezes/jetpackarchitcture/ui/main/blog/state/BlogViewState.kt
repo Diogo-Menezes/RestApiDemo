@@ -1,9 +1,9 @@
 package com.diogomenezes.jetpackarchitcture.ui.main.blog.state
 
 import android.net.Uri
-import com.diogomenezes.jetpackarchitcture.models.BlogPost
 import com.diogomenezes.jetpackarchitcture.database.BlogQueryUtils.Companion.BLOG_ORDER_ASC
 import com.diogomenezes.jetpackarchitcture.database.BlogQueryUtils.Companion.ORDER_BY_ASC_DATE_UPDATED
+import com.diogomenezes.jetpackarchitcture.models.BlogPost
 
 data class BlogViewState(
     // BlogFragment vars
@@ -16,7 +16,7 @@ data class BlogViewState(
     var updatedBlogFields: UpdateBlogFields = UpdateBlogFields()
 ) {
     data class BlogFields(
-        var blogList: List<BlogPost> = ArrayList<BlogPost>(),
+        var blogList: List<BlogPost> = ArrayList(),
         var searchQuery: String = "",
         var page: Int = 1,
         var isQueryInProgress: Boolean = false,

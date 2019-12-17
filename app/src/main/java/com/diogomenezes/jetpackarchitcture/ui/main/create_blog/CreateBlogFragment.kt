@@ -7,11 +7,15 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.*
+import androidx.core.net.toUri
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.diogomenezes.jetpackarchitcture.R
 import com.diogomenezes.jetpackarchitcture.ui.*
 import com.diogomenezes.jetpackarchitcture.ui.main.create_blog.state.CreateBlogStateEvent
-import com.diogomenezes.jetpackarchitcture.util.Constants
+import com.diogomenezes.jetpackarchitcture.util.Constants.Companion.BLOG_BODY
+import com.diogomenezes.jetpackarchitcture.util.Constants.Companion.BLOG_IMAGE
+import com.diogomenezes.jetpackarchitcture.util.Constants.Companion.BLOG_TITLE
 import com.diogomenezes.jetpackarchitcture.util.Constants.Companion.GALLERY_REQUEST_CODE
 import com.diogomenezes.jetpackarchitcture.util.ErrorHandling
 import com.diogomenezes.jetpackarchitcture.util.ErrorHandling.Companion.ERROR_MUST_SELECT_IMAGE
@@ -30,47 +34,50 @@ class CreateBlogFragment : BaseCreateBlogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_create_blog, container, false)
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
-        blog_image.setOnClickListener {
+        setClickListener()
+        subscribeObservers()
+    }
+
+    private fun setClickListener() {
+        create_blog_image.setOnClickListener {
             if (stateChangeListener.isStoragePermissionGranted()) {
                 pickFromGallery()
             }
         }
 
-        update_textview.setOnClickListener {
+        create_blog_image_add_update_text.setOnClickListener {
             if (stateChangeListener.isStoragePermissionGranted()) {
                 pickFromGallery()
             }
         }
-        subscribeObservers()
     }
 
     private fun subscribeObservers() {
         viewModel.dataState.observe(viewLifecycleOwner, Observer { dataState ->
             stateChangeListener.OnDataStateChange(dataState)
-
             dataState.data?.let { data ->
                 data.response?.let { event ->
                     event.peekContent().let { response ->
                         response.message?.let { message ->
                             if (message.equals(SuccessHandling.SUCCESS_BLOG_CREATED)) {
                                 viewModel.clearNewBlogFields()
-
                             }
                         }
                     }
                 }
             }
-
         })
+
         viewModel.viewState.observe(viewLifecycleOwner, Observer { viewState ->
             viewState.blogFields.let { newBlogFields ->
+                Log.i("CreateBlogFragment", "subscribeObservers: blogfields called")
                 setBlogProperties(
                     newBlogFields.newBlogTitle,
                     newBlogFields.newBlogBody,
@@ -81,15 +88,22 @@ class CreateBlogFragment : BaseCreateBlogFragment() {
     }
 
     private fun setBlogProperties(title: String?, body: String?, imageUri: Uri?) {
-        imageUri?.let {
+        if (imageUri == Uri.EMPTY || imageUri == null) {
+            create_blog_image.setImageDrawable(null)
+            create_blog_image_add_update_text.text =
+                resources.getString(R.string.touch_to_add_image)
+        } else {
+            create_blog_image_add_update_text.text =
+                resources.getString(R.string.touch_to_change_image)
             requestManager
                 .load(imageUri)
-                .into(blog_image)
+                .into(create_blog_image)
         }
-        blog_title.setText(title)
-        blog_body.setText(body)
-    }
+        create_blog_title.setText(title)
+        create_blog_body.setText(body)
 
+
+    }
 
     private fun pickFromGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
@@ -97,7 +111,7 @@ class CreateBlogFragment : BaseCreateBlogFragment() {
         val mimeTypes = arrayOf("image/jpeg", "image/png", "image/jpg")
         intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
         intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        startActivityForResult(intent, Constants.GALLERY_REQUEST_CODE)
+        startActivityForResult(intent, GALLERY_REQUEST_CODE)
     }
 
     private fun launchImageCrop(uri: Uri?) {
@@ -124,49 +138,9 @@ class CreateBlogFragment : BaseCreateBlogFragment() {
 //        uiCommunicationListener.onUIMessageReceived(UiMessage(errorMessage, UIMessageType.Dialog()))
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                GALLERY_REQUEST_CODE -> {
-                    data?.data?.let { uri ->
-                        launchImageCrop(uri)
-                    } ?: showErrorDialog(ErrorHandling.ERROR_SOMETHING_WRONG_WITH_IMAGE)
-                }
-
-                CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE -> {
-                    val result = CropImage.getActivityResult(data)
-                    val resultUri = result.uri
-                    Log.d("CreateBlogFragment", "onActivityResult : $resultUri")
-                    viewModel.setNewBlogFields(uri = resultUri)
-                }
-                CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE -> {
-                    showErrorDialog(ErrorHandling.ERROR_SOMETHING_WRONG_WITH_IMAGE)
-                }
-
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data)
-    }
-
-
-
-
     private fun publishNewBlog() {
 
-        val callback: AreYouSureCallback = object : AreYouSureCallback {
-            override fun proceed() {}
-
-            override fun cancel() {
-                return
-            }
-        }
-        uiCommunicationListener.onUIMessageReceived(
-            UiMessage(
-                getString(R.string.are_you_sure_publish),
-                UIMessageType.AreYouSureDialog(callback)
-            )
-        )
-
+        if (create_blog_title.text.isNullOrEmpty() && create_blog_body.text.isNullOrEmpty()) return
 
         var multiPartBody: MultipartBody.Part? = null
         viewModel.getNewImageUri()?.let { imageUri ->
@@ -185,16 +159,55 @@ class CreateBlogFragment : BaseCreateBlogFragment() {
                 )
             }
         }
-        multiPartBody?.let {
+        multiPartBody?.let { image ->
+            // TODO("17/12/2019 - Possible crash after process death")
             viewModel.setStateEvent(
                 CreateBlogStateEvent.CreateNewBlogEvent(
-                    blog_title.text.toString(),
-                    blog_body.text.toString(),
-                    it
+                    create_blog_title.text.toString(),
+                    create_blog_body.text.toString(),
+                    image
                 )
             )
             stateChangeListener.hideSoftKeyboard()
+
+            val callback: AreYouSureCallback = object : AreYouSureCallback {
+                override fun proceed() {}
+                override fun cancel() {
+                    return
+                }
+            }
+            uiCommunicationListener.onUIMessageReceived(
+                UiMessage(
+                    getString(R.string.are_you_sure_publish),
+                    UIMessageType.AreYouSureDialog(callback)
+                )
+            )
+
+
         } ?: showErrorDialog(ERROR_MUST_SELECT_IMAGE)
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                GALLERY_REQUEST_CODE -> {
+                    data?.data?.let { uri ->
+                        launchImageCrop(uri)
+                    } ?: showErrorDialog(ErrorHandling.ERROR_SOMETHING_WRONG_WITH_IMAGE)
+                }
+
+                CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE -> {
+                    val result = CropImage.getActivityResult(data)
+                    val resultUri = result.uri
+                    viewModel.setNewBlogFields(uri = resultUri)
+                }
+                CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE -> {
+                    showErrorDialog(ErrorHandling.ERROR_SOMETHING_WRONG_WITH_IMAGE)
+                }
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -203,20 +216,53 @@ class CreateBlogFragment : BaseCreateBlogFragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        if (item.itemId == R.id.publish) {
-            publishNewBlog()
-            return true
-        } else return super.onOptionsItemSelected(item)
+        return when (item.itemId) {
+            R.id.publish_content_menu -> {
+                publishNewBlog()
+                true
+            }
+            R.id.delete_content_menu -> {
+                viewModel.clearNewBlogFields()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onPause() {
         super.onPause()
-
         viewModel.setNewBlogFields(
-            blog_title.text.toString(),
-            blog_body.text.toString(),
+            create_blog_title.text.toString(),
+            create_blog_body.text.toString(),
             null
+        )
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel = activity?.run {
+            ViewModelProvider(this, providerFactory).get(CreateBlogViewModel::class.java)
+        } ?: throw Exception("Invalid activity")
+
+        if (savedInstanceState != null) {
+            var title = ""
+            var body = ""
+            var uri: Uri? = null
+            savedInstanceState[BLOG_TITLE]?.let { title = it as String }
+            savedInstanceState[BLOG_BODY]?.let { body = it as String }
+            savedInstanceState[BLOG_IMAGE]?.let { uri = it.toString().toUri() }
+
+            viewModel.setNewBlogFields(title, body, uri)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(BLOG_TITLE, create_blog_title.text.toString())
+        outState.putString(BLOG_BODY, create_blog_body.text.toString())
+        outState.putString(
+            BLOG_IMAGE,
+            viewModel.viewState.value?.blogFields?.newImageUri.toString()
         )
     }
 }

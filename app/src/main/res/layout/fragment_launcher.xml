@@ -28,7 +28,7 @@
             android:layout_width="0dp"
             android:layout_height="75dp"
             android:src="@drawable/logo"
-            app:layout_constraintBottom_toTopOf="@+id/login"
+            app:layout_constraintBottom_toTopOf="@+id/launch_login"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -37,26 +37,26 @@
 
 
         <TextView
-            android:id="@+id/login"
+            android:id="@+id/launch_login"
             style="@style/login_letter_style"
             android:text="Login"
-            app:layout_constraintBottom_toTopOf="@+id/register"
+            app:layout_constraintBottom_toTopOf="@+id/launch_register"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/app_logo" />
 
         <TextView
-            android:id="@+id/register"
+            android:id="@+id/launch_register"
             style="@style/login_letter_style"
             android:text="@string/register"
-            app:layout_constraintBottom_toTopOf="@+id/forgot_password"
+            app:layout_constraintBottom_toTopOf="@+id/launch_forgot_password"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/login" />
+            app:layout_constraintTop_toBottomOf="@+id/launch_login" />
 
 
         <TextView
-            android:id="@+id/forgot_password"
+            android:id="@+id/launch_forgot_password"
             style="@style/login_letter_style"
             android:text="Forgot password"
             android:textColor="@color/link_blue"
@@ -64,7 +64,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/register" />
+            app:layout_constraintTop_toBottomOf="@+id/launch_register" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

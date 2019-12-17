@@ -139,8 +139,8 @@ class BlogListAdapter(
             requestManager
                 .load(item.image)
                 .transition(withCrossFade())
-                .into(itemView.blog_image)
-            itemView.blog_title.text = item.title
+                .into(itemView.create_blog_image)
+            itemView.create_blog_title.text = item.title
             itemView.blog_author.text = item.username
             itemView.blog_update_date.text = DateUtil.convertLongToStringDate(item.date_updated)
 

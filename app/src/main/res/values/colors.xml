@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Main theme colors -->
+
     <color name="colorPrimary">#fff</color>
-    <color name="colorPrimaryDark">#7d7d7d</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimaryDark">@color/tealDark</color>
+    <color name="colorAccent">@color/tealLight</color>
 
     <!-- Secondary theme colors -->
     <color name="tealDark">#0094DE</color>
     <color name="tealLight">#9FDAF7</color>
+    <color name="tealLight50">#7D9EDAF7</color>
+    <color name="tealLight20">#149EDAF7</color>
     <color name="link_blue">#0000EE</color>
 
     <!-- other -->

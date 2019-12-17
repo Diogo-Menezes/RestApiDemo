@@ -20,6 +20,7 @@ import com.diogomenezes.jetpackarchitcture.ui.main.blog.ViewBlogFragment
 import com.diogomenezes.jetpackarchitcture.ui.main.create_blog.BaseCreateBlogFragment
 import com.diogomenezes.jetpackarchitcture.util.BottomNavController
 import com.diogomenezes.jetpackarchitcture.util.BottomNavController.*
+import com.diogomenezes.jetpackarchitcture.util.Constants
 import com.diogomenezes.jetpackarchitcture.util.setUpNavigation
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -30,31 +31,33 @@ class MainActivity : BaseActivity(),
     NavGraphProvider,
     OnNavigationGraphChanged,
     OnNavigationReselectedListener {
+
     private lateinit var bottomNavigationView: BottomNavigationView
 
     private val bottomNavController by lazy(LazyThreadSafetyMode.NONE) {
-        BottomNavController(
-            this,
-            R.id.main_nav_host_fragment,
-            R.id.nav_blog,
-            this,
-            this
-        )
+        BottomNavController(this, R.id.main_nav_host_fragment, R.id.nav_blog, this, this)
+    }
+
+    override fun onStart() {
+        super.onStart()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.i("MainActivity", "onCreate: called")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        setupActionBar()
+        setSupportActionBar(tool_bar)
         bottomNavigationView = findViewById(R.id.bottom_navigation_view)
         bottomNavigationView.setUpNavigation(bottomNavController, this)
         if (savedInstanceState == null) {
             bottomNavController.onNavigationItemSelected()
         }
+
+        supportActionBar?.title = resources.getString(R.string.app_name)
+
+
         subscribeObservers()
-
-
     }
 
     private fun subscribeObservers() {
@@ -62,12 +65,15 @@ class MainActivity : BaseActivity(),
             Log.d("MainActivity", "subscribeObservers (line 19): token: $it")
             if (it == null || it.account_pk == -1 || it.token == null) {
                 navAuthActivity()
+
             }
         })
     }
 
     private fun navAuthActivity() {
-        startActivity(Intent(application, AuthActivity::class.java))
+        val intent = Intent(application, AuthActivity::class.java)
+        intent.putExtra(Constants.LOGOUT, true)
+        startActivity(intent)
         finish()
     }
 
@@ -122,31 +128,25 @@ class MainActivity : BaseActivity(),
         }
     }
 
+
     override fun onReselectNavItem(navController: NavController, fragment: Fragment) {
-        Log.d("MainActivity", "onReselectNavItem (line 104): called")
-//        TODO(
-//            "25/11/2019 - test if it works case not" +
-//                    "add to the top = when(fragment"
-//        )
 
         return when (fragment) {
             is ViewBlogFragment -> navController.navigate(R.id.action_viewBlogFragment_to_home)
 
+
             is UpdateBlogFragment -> navController.navigate(R.id.action_updateBlogFragment_to_home)
+
 
             is UpdateAccountFragment -> navController.navigate(R.id.action_updateAccountFragment_to_home)
 
+
             is ChangePasswordFragment -> navController.navigate(R.id.action_changePasswordFragment_to_home)
 
-            else -> {
-
-            }
+            else -> Unit
         }
     }
 
-    private fun setupActionBar() {
-        setSupportActionBar(tool_bar)
-    }
 
     override fun onBackPressed() = bottomNavController.onBackPressed()
 

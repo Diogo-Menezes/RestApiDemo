@@ -93,14 +93,12 @@ constructor(
         setStateEvent(None())
     }
 
-
+    fun logout() {
+        sessionManager.logout()
+    }
 
     override fun onCleared() {
         super.onCleared()
         cancelActiveJobs()
-    }
-
-    fun logout() {
-        sessionManager.logout()
     }
 }

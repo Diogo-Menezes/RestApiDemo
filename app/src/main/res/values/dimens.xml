@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="bottom_nav_size">56dp</dimen>
+    <dimen name="blog_item_image_size">150dp</dimen>
+</resources>

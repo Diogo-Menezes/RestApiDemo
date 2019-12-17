@@ -6,10 +6,10 @@ import android.net.ConnectivityManager
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.diogomenezes.jetpackarchitcture.models.AuthToken
 import com.diogomenezes.jetpackarchitcture.database.AuthTokenDao
+import com.diogomenezes.jetpackarchitcture.models.AuthToken
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -30,11 +30,11 @@ class SessionManager
 
 
     fun login(newValue: AuthToken) {
-        setValue(newValue)
+        setTokenValue(newValue)
     }
 
     fun logout() {
-        GlobalScope.launch(IO) {
+        GlobalScope.launch(Dispatchers.IO) {
             var errorMassage: String? = null
             try {
                 _cachedToken.value!!.account_pk?.let {
@@ -51,12 +51,13 @@ class SessionManager
                 errorMassage?.let {
                     Log.e("SessionManager", "logout (line 48): $errorMassage")
                 }
-                setValue(null)
+                Log.i("SessionManager", "logout: finally")
+                setTokenValue(null)
             }
         }
     }
 
-    fun setValue(newValue: AuthToken?) {
+    fun setTokenValue(newValue: AuthToken?) {
         GlobalScope.launch(Main) {
             if (_cachedToken.value != newValue) {
                 _cachedToken.value = newValue

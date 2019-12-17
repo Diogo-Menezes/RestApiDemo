@@ -10,7 +10,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.diogomenezes.jetpackarchitcture.R
+import com.diogomenezes.jetpackarchitcture.models.AccountProperties
 import com.diogomenezes.jetpackarchitcture.ui.DataStateChangeListener
+import com.diogomenezes.jetpackarchitcture.util.Constants
 import com.diogomenezes.jetpackarchitcture.viewmodel.ViewModelProviderFactory
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
@@ -24,13 +26,23 @@ abstract class BaseAccountFragment : DaggerFragment() {
 
     lateinit var viewModel: AccountViewModel
 
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel = activity?.run {
+            ViewModelProvider(
+                this,
+                viewModelProviderFactory
+            ).get(AccountViewModel::class.java)
+        } ?: throw Exception("Invalid Activity")
+    }
+
     fun setupActionBarWithNavController(fragmentId: Int, activity: AppCompatActivity) {
         val appBarConfiguration = AppBarConfiguration(setOf(fragmentId))
         NavigationUI.setupActionBarWithNavController(
             activity,
             findNavController(),
             appBarConfiguration
-
         )
     }
 
@@ -44,12 +56,7 @@ abstract class BaseAccountFragment : DaggerFragment() {
             R.id.accountFragment,
             activity as AppCompatActivity
         )
-        viewModel = activity?.run {
-            ViewModelProvider(
-                this,
-                viewModelProviderFactory
-            ).get(AccountViewModel::class.java)
-        } ?: throw Exception("Invalid Activity")
+
         cancelActiveJobs()
     }
 

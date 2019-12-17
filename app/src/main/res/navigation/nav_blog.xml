@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/blogFragment"
-        android:name="com.diogomenezes.jetpackarchitcture.ui.main.blog.BlogFragment"
+        android:name="com.diogomenezes.jetpackarchitcture.ui.main.blog.BlogListFragment"
         android:label="@string/fragment_blog"
-        tools:layout="@layout/fragment_blog">
+        tools:layout="@layout/fragment_blog_list">
 
 
         <action

@@ -25,6 +25,7 @@ abstract class BaseActivity : DaggerAppCompatActivity(), DataStateChangeListener
     @Inject
     lateinit var sessionManager: SessionManager
 
+
     override fun OnDataStateChange(dataState: DataState<*>?) {
         dataState?.let {
             GlobalScope.launch(Main) {

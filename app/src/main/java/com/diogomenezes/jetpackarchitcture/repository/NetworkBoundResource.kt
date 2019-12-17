@@ -24,7 +24,6 @@ abstract class NetworkBoundResource<ResponseObject, CacheObject, ViewStateType>
     shouldLoadFromCache: Boolean // should the cached data be loaded?
 ) {
 
-    private val TAG: String = "AppDebug"
 
     protected val result = MediatorLiveData<DataState<ViewStateType>>()
     protected lateinit var job: CompletableJob
@@ -94,7 +93,7 @@ abstract class NetworkBoundResource<ResponseObject, CacheObject, ViewStateType>
             delay(NETWORK_TIMEOUT)
 
             if (!job.isCompleted) {
-                Log.e(TAG, "NetworkBoundResource: JOB NETWORK TIMEOUT.")
+                Log.i("NetworkBoundResource", "doNetworkRequest : JOB NETWORK TIMEOUT.")
                 job.cancel(CancellationException(ErrorHandling.UNABLE_TO_RESOLVE_HOST))
             }
         }
@@ -107,11 +106,11 @@ abstract class NetworkBoundResource<ResponseObject, CacheObject, ViewStateType>
                 handleApiSuccessResponse(response)
             }
             is ApiErrorResponse -> {
-                Log.e(TAG, "NetworkBoundResource: ${response.errorMessage}")
+                Log.i("NetworkBoundResource", "handleNetworkCall: ${response.errorMessage}")
                 onErrorReturn(response.errorMessage, true, false)
             }
             is ApiEmptyResponse -> {
-                Log.e(TAG, "NetworkBoundResource: Request returned NOTHING (HTTP 204).")
+                Log.i("NetworkBoundResource", "handleNetworkCall: Request returned NOTHING (HTTP 204).")
                 onErrorReturn("HTTP 204. Returned NOTHING.", true, false)
             }
         }
@@ -150,7 +149,7 @@ abstract class NetworkBoundResource<ResponseObject, CacheObject, ViewStateType>
 
     @UseExperimental(InternalCoroutinesApi::class)
     private fun initNewJob(): Job {
-        Log.d(TAG, "initNewJob: called.")
+        Log.d("NetworkBoundResource", "initNewJob : called ")
         job = Job() // create new job
         job.invokeOnCompletion(
             onCancelling = true,
@@ -158,12 +157,12 @@ abstract class NetworkBoundResource<ResponseObject, CacheObject, ViewStateType>
             handler = object : CompletionHandler {
                 override fun invoke(cause: Throwable?) {
                     if (job.isCancelled) {
-                        Log.e(TAG, "NetworkBoundResource: Job has been cancelled.")
+                        Log.d("NetworkBoundResource", "invoke :Job has been cancelled. ")
                         cause?.let {
                             onErrorReturn(it.message, false, true)
                         } ?: onErrorReturn("Unknown error.", false, true)
                     } else if (job.isCompleted) {
-                        Log.e(TAG, "NetworkBoundResource: Job has been completed.")
+                        Log.d("NetworkBoundResource", "invoke : Job has been completed.")
                         // Do nothing? Should be handled already
                     }
                 }

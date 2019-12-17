@@ -82,7 +82,7 @@ class BottomNavController(
             // supportFragmentManager may mess up with the NavController child fragment manager back
             // stack
             childFragmentManager.popBackStackImmediate() -> { }
-// Fragment back stack is empty so try to go back on the navigation stack
+            // Fragment back stack is empty so try to go back on the navigation stack
             navigationBackStack.size > 1 -> {
 
                 // Remove last item from back stack
@@ -109,9 +109,9 @@ class BottomNavController(
 
         companion object {
             fun of(vararg elements: Int): BackStack {
-                val b = BackStack()
-                b.addAll(elements.toTypedArray())
-                return b
+                val backStack = BackStack()
+                backStack.addAll(elements.toTypedArray())
+                return backStack
             }
         }
 
