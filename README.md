@@ -6,6 +6,27 @@
 <p> Please note that less time was spent in the Design development. </p>
 <br>
 
+# Key features
+* <p><b>Kotlin & Kotlin Coroutines</b>
+* <p><b>Dependency Injection</b>
+* <p><b>Session Manager</b>
+* <p><b>Token Authentication</b>
+* <p><b>Database Offline Caching</b>
+  
+# App architecture
+  <p>The app was developed taking in account the best practices and recommended architecture from Google for building apps.</p>
+  <p>It uses the repository pattern and the single source of truth (see below).  Each component depends only on the component one level below it.
+  For example, activities depend only on a view model. The repository is the only class that depends on multiple other classes.</p>
+  <p>*This means that the user always sees the cached data.  
+  <div class="center" align="center">
+    <img class="center" src="https://developer.android.com/topic/libraries/architecture/images/final-architecture.png" height="400">
+  </div>
+  
+# How it works
+<p>The user always sees the cached data independent of having internet connection or not. When the network is available a request is made to the server, the data that comes from the server is added to the local database. If there are changes the user is presented with the new information otherwise nothing changes.
+<p>The calls to the server and to the database are made using coroutines so the user UI never gets blocked. The use of Livedata allows us to observe for data changes and if there is a need to upddate the user UI with new information.
+  
+
 # Screenshots
 
 ![Intro Screen](screens/screen1.png "Intro screen")
@@ -38,14 +59,6 @@
   <p>The main focus of this project was on HTTP requests and caching the data for offline use using the MVI pattern.</p>
   <p>The UI was't developed for making the design look better, only added the necessary components to show the results.</p>
   <br>
-  
-# App architecture
-  <p>The app was developed taking in account the best practices and recommended architecture from Google for building apps.</p>
-  <p>It uses the repository pattern and the single source of truth. Each component depends only on the component one level below it.
-  For example, activities depend only on a view model. The repository is the only class that depends on multiple other classes.</p>
-  <div class="center" align="center">
-    <img class="center" src="https://developer.android.com/topic/libraries/architecture/images/final-architecture.png" height="400">
-  </div>
   <br>
   <br>
   <br>
